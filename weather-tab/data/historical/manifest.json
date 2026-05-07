@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-20T17:05:55.915Z",
+  "lyYear": 2025,
+  "climatologyRange": {
+    "startYear": 2021,
+    "endYear": 2025
+  },
+  "countries": [
+    {
+      "id": "ar",
+      "label": "Argentina",
+      "bundleFile": "ar.json",
+      "generatedAt": "2026-04-20T17:07:08.550Z",
+      "lyYear": 2025,
+      "climatologyRange": {
+        "startYear": 2021,
+        "endYear": 2025,
+        "startStr": "2021-01-01",
+        "endStr": "2025-12-31"
+      }
+    },
+    {
+      "id": "br",
+      "label": "Brazil",
+      "bundleFile": "br.json",
+      "generatedAt": "2026-04-20T16:42:41.512Z",
+      "lyYear": 2025,
+      "climatologyRange": {
+        "startYear": 2021,
+        "endYear": 2025,
+        "startStr": "2021-01-01",
+        "endStr": "2025-12-31"
+      }
+    },
+    {
+      "id": "co",
+      "label": "Colombia",
+      "bundleFile": "co.json",
+      "generatedAt": "2026-04-20T17:08:12.743Z",
+      "lyYear": 2025,
+      "climatologyRange": {
+        "startYear": 2021,
+        "endYear": 2025,
+        "startStr": "2021-01-01",
+        "endStr": "2025-12-31"
+      }
+    },
+    {
+      "id": "hn",
+      "label": "Honduras",
+      "bundleFile": "hn.json",
+      "generatedAt": "2026-04-20T17:09:02.297Z",
+      "lyYear": 2025,
+      "climatologyRange": {
+        "startYear": 2021,
+        "endYear": 2025,
+        "startStr": "2021-01-01",
+        "endStr": "2025-12-31"
+      }
+    },
+    {
+      "id": "sv",
+      "label": "El Salvador",
+      "bundleFile": "sv.json",
+      "generatedAt": "2026-04-20T17:09:59.354Z",
+      "lyYear": 2025,
+      "climatologyRange": {
+        "startYear": 2021,
+        "endYear": 2025,
+        "startStr": "2021-01-01",
+        "endStr": "2025-12-31"
+      }
+    }
+  ]
+}

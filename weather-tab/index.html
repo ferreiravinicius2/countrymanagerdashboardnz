@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Climate · Weather Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__titles">
+        <p class="eyebrow">Climate</p>
+        <h1>Weather overview</h1>
+      </div>
+      <div class="app-header__meta">
+        <span id="header-updated" class="muted">—</span>
+        <span id="header-last-actual" class="muted app-header__sub">—</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="historical-banner" class="historical-banner" hidden></div>
+
+  <main class="layout">
+    <section class="panel filters-panel" aria-label="Geography filters">
+      <h2 class="panel-title">Geography</h2>
+      <div class="filters-grid">
+        <label class="field">
+          <span class="field-label">Country</span>
+          <select id="filter-country" class="select"></select>
+        </label>
+        <div class="field field--dropdown">
+          <span class="field-label" id="filter-region-label">Region</span>
+          <div class="filter-dropdown" id="filter-region-root">
+            <button
+              type="button"
+              class="filter-dropdown__trigger"
+              id="filter-region-trigger"
+              aria-expanded="false"
+              aria-haspopup="dialog"
+              aria-controls="filter-region-panel"
+            >
+              All regions
+            </button>
+            <div class="filter-dropdown__panel" id="filter-region-panel" hidden role="dialog" aria-labelledby="filter-region-label">
+              <div class="filter-dropdown__toolbar">
+                <button type="button" class="btn btn--sm" id="filter-region-all">Select all</button>
+                <button type="button" class="btn btn--ghost btn--sm" id="filter-region-clear">Clear</button>
+              </div>
+              <div class="filter-dropdown__list" id="filter-region-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="field field--dropdown">
+          <span class="field-label" id="filter-state-label">State</span>
+          <div class="filter-dropdown" id="filter-state-root">
+            <button
+              type="button"
+              class="filter-dropdown__trigger"
+              id="filter-state-trigger"
+              aria-expanded="false"
+              aria-haspopup="dialog"
+              aria-controls="filter-state-panel"
+            >
+              States
+            </button>
+            <div class="filter-dropdown__panel" id="filter-state-panel" hidden role="dialog" aria-labelledby="filter-state-label">
+              <div class="filter-dropdown__toolbar">
+                <button type="button" class="btn btn--sm" id="filter-state-all">Select all</button>
+                <button type="button" class="btn btn--ghost btn--sm" id="filter-state-clear">Clear</button>
+              </div>
+              <div class="filter-dropdown__list" id="filter-state-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p id="filter-summary" class="filter-summary muted"></p>
+      <div class="actions">
+        <button type="button" class="btn" id="btn-select-all-states">Select all states (current scope)</button>
+        <button type="button" class="btn btn--ghost" id="btn-clear">Clear state selection</button>
+        <button type="button" class="btn btn--primary" id="btn-open-export">Download data (CSV)</button>
+      </div>
+    </section>
+
+    <section class="panel snapshot-panel" aria-label="Snapshot">
+      <h2 class="panel-title">Current conditions <span class="badge">aggregated</span></h2>
+      <p class="muted tiny snapshot-panel__note">Rolling 7-day average ending on the last day with actual data.</p>
+      <div id="snapshot-grid" class="snapshot-grid"></div>
+    </section>
+
+    <section class="panel" aria-label="Period Scorecards">
+      <div class="period-panel-head">
+        <h2 class="panel-title">Period Scorecards</h2>
+        <label class="toggle-label">
+          <span>Comparison baseline</span>
+          <select id="period-baseline" class="select select--sm">
+            <option value="ly">Last year (LY)</option>
+            <option value="his">Historical (climatology)</option>
+          </select>
+        </label>
+      </div>
+      <p class="muted tiny">
+        Climatology baseline: <strong id="clim-label">—</strong> — last <strong id="clim-years-count">5</strong> complete calendar years (daily normals, Open-Meteo archive). Rain day: ≥ <strong id="rain-threshold-label">1.0</strong> mm/day.
+      </p>
+      <div id="period-grid" class="period-grid"></div>
+    </section>
+
+    <section class="panel charts-panel" aria-label="Charts">
+      <div class="charts-head">
+        <h2 class="panel-title">Charts</h2>
+        <div class="chart-controls">
+          <label class="toggle-label">
+            <span>Comparison line baseline</span>
+            <select id="chart-baseline" class="select select--sm">
+              <option value="ly">Last year (LY)</option>
+              <option value="his">Historical (climatology)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="chart-block">
+        <h3 class="chart-block__title">Temperature vs Baseline</h3>
+        <p class="chart-block__kpi muted tiny" id="chart-kpi-temp" aria-live="polite"></p>
+        <div class="chart-canvas-wrap">
+          <canvas id="chart-temp" height="120" aria-label="Temperature chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-block">
+        <h3 class="chart-block__title">MM Rain vs Baseline</h3>
+        <p class="chart-block__kpi muted tiny" id="chart-kpi-precip" aria-live="polite"></p>
+        <div class="chart-canvas-wrap">
+          <canvas id="chart-dual" height="120" aria-label="Precipitation vs baseline chart"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>.
+      Forecast horizon may be limited (typically ≤16 days) on the public API; longer ranges are truncated with a notice.
+    </p>
+    <p class="muted tiny" id="clim-cache-note"></p>
+    <p class="muted tiny" id="chart-forecast-note"></p>
+  </footer>
+
+  <!-- Update Historical Data modal -->
+  <div
+    id="historical-modal"
+    class="historical-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="historical-modal-title"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="historical-modal__backdrop"></div>
+    <div class="historical-modal__panel">
+      <header class="historical-modal__header">
+        <h2 class="historical-modal__title" id="historical-modal-title">Historical Database</h2>
+        <button type="button" class="btn btn--ghost btn--sm" id="historical-modal-close" aria-label="Close">
+          Close
+        </button>
+      </header>
+      <div class="historical-modal__body" id="historical-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Download data (CSV) modal -->
+  <div
+    id="export-modal"
+    class="historical-modal export-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="export-modal-title"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="historical-modal__backdrop"></div>
+    <div class="historical-modal__panel export-modal__panel">
+      <header class="historical-modal__header">
+        <h2 class="historical-modal__title" id="export-modal-title">Download weather data (CSV)</h2>
+        <button type="button" class="btn btn--ghost btn--sm" id="export-modal-close" aria-label="Close">
+          Close
+        </button>
+      </header>
+      <div class="historical-modal__body export-modal__body">
+        <p class="muted tiny">
+          Select geography and a date range. The CSV contains daily values per city (one row per city per day):
+          temperature max/min/mean (°C) and precipitation (mm). Historical days come from the archive; future
+          days come from the forecast (up to 16 days ahead).
+        </p>
+
+        <div class="export-modal__filters">
+          <label class="field">
+            <span class="field-label">Country</span>
+            <select id="export-country" class="select"></select>
+          </label>
+
+          <div class="field field--dropdown">
+            <span class="field-label" id="export-region-label">Region</span>
+            <div class="filter-dropdown" id="export-region-root">
+              <button
+                type="button"
+                class="filter-dropdown__trigger"
+                id="export-region-trigger"
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                aria-controls="export-region-panel"
+              >
+                All regions
+              </button>
+              <div class="filter-dropdown__panel" id="export-region-panel" hidden role="dialog" aria-labelledby="export-region-label">
+                <div class="filter-dropdown__toolbar">
+                  <button type="button" class="btn btn--sm" id="export-region-all">Select all</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="export-region-clear">Clear</button>
+                </div>
+                <div class="filter-dropdown__list" id="export-region-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field field--dropdown">
+            <span class="field-label" id="export-state-label">State</span>
+            <div class="filter-dropdown" id="export-state-root">
+              <button
+                type="button"
+                class="filter-dropdown__trigger"
+                id="export-state-trigger"
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                aria-controls="export-state-panel"
+              >
+                States
+              </button>
+              <div class="filter-dropdown__panel" id="export-state-panel" hidden role="dialog" aria-labelledby="export-state-label">
+                <div class="filter-dropdown__toolbar">
+                  <button type="button" class="btn btn--sm" id="export-state-all">Select all</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="export-state-clear">Clear</button>
+                </div>
+                <div class="filter-dropdown__list" id="export-state-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Start date</span>
+            <input type="date" id="export-start-date" class="input-date" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">End date</span>
+            <input type="date" id="export-end-date" class="input-date" />
+          </label>
+        </div>
+
+        <p id="export-summary" class="muted tiny"></p>
+        <p id="export-progress" class="export-progress muted tiny" hidden></p>
+        <p id="export-error" class="export-error tiny" hidden></p>
+      </div>
+      <footer class="historical-modal__footer export-modal__footer">
+        <button type="button" class="btn btn--ghost" id="export-cancel">Cancel</button>
+        <button type="button" class="btn btn--primary" id="export-download">Download CSV</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- locations-data.js embeds geography so the page works from file:// (fetch() to JSON is blocked) -->
+  <script src="data/locations-data.js" defer></script>
+  <!--
+    historical-data.js (optional) embeds the pre-computed historical database as
+    window.__WEATHER_HISTORICAL__ so the dashboard works from file://. Generated by
+    update-historical.bat. If absent, the dashboard falls back to live API calls.
+  -->
+  <script src="data/historical-data.js" defer onerror="void 0"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+    integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt"
+    crossorigin="anonymous"
+    defer
+  ></script>
+  <script src="js/app.js?v=20260421-2" defer></script>
+
+<style>
+/* W19: suppress the "Historical data needs an update" reminder banner.
+   Daily climate refresh goes through Open-Meteo APIs at runtime; the CM
+   does not need to manually update a local DB. */
+#historical-banner { display: none !important; }
+#btn-update-historical { display: none !important; }
+#historical-modal { display: none !important; }
+</style>
+</body>
+</html>
