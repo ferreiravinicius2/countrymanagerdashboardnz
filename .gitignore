@@ -1,0 +1,11 @@
+*.xlsx
+*.xlsb
+*.pptx
+*.pdf
+*.zip
+.env
+.env.local
+node_modules/
+.vercel
+__pycache__/
+*.pyc
